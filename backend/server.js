@@ -26,6 +26,39 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/ai', aiRoutes);
 
+// Admin authentication
+const crypto = require('crypto');
+const adminSessions = new Set();
+
+app.post('/api/admin/login', (req, res) => {
+  const { username, password } = req.body;
+  const adminUser = process.env.ADMIN_USERNAME || 'admin';
+  const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+
+  if (username === adminUser && password === adminPass) {
+    const token = crypto.randomBytes(32).toString('hex');
+    adminSessions.add(token);
+    // Auto-expire after 8 hours
+    setTimeout(() => adminSessions.delete(token), 8 * 60 * 60 * 1000);
+    return res.json({ success: true, token, message: 'Login successful' });
+  }
+  res.status(401).json({ success: false, message: 'Invalid username or password' });
+});
+
+app.post('/api/admin/verify', (req, res) => {
+  const { token } = req.body;
+  if (token && adminSessions.has(token)) {
+    return res.json({ valid: true });
+  }
+  res.status(401).json({ valid: false });
+});
+
+app.post('/api/admin/logout', (req, res) => {
+  const { token } = req.body;
+  if (token) adminSessions.delete(token);
+  res.json({ success: true });
+});
+
 // POST /api/predict-waiting-time (alias)
 app.post('/api/predict-waiting-time', (req, res) => {
   require('./routes/appointments').handle;

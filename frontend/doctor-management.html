@@ -6,6 +6,16 @@
   <title>Doctor Management - MediQueue AI</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    // Admin auth check - redirect to login if not authenticated
+    (function() {
+      const token = sessionStorage.getItem('adminToken');
+      if (!token) { window.location.href = 'admin-login.html?redirect=doctor-management.html'; return; }
+      fetch('/api/admin/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) })
+        .then(r => r.json()).then(d => { if (!d.valid) { sessionStorage.removeItem('adminToken'); window.location.href = 'admin-login.html?redirect=doctor-management.html'; } })
+        .catch(() => {});
+    })();
+  </script>
 </head>
 <body>
   <div class="bg-pattern"></div>
@@ -23,6 +33,7 @@
         <li><a href="doctor-management.html" class="active"><i class="fas fa-user-md"></i> Doctors</a></li>
         <li><a href="queue-display.html"><i class="fas fa-tv"></i> Queue</a></li>
       </ul>
+      <button class="admin-logout-btn" onclick="adminLogout()" title="Logout"><i class="fas fa-sign-out-alt"></i> Logout</button>
       <button class="mobile-toggle" onclick="document.getElementById('navLinks').classList.toggle('show')"><i class="fas fa-bars"></i></button>
     </div>
   </nav>
@@ -179,5 +190,13 @@
 
   <script src="js/main.js"></script>
   <script src="js/doctor-management.js"></script>
+  <script>
+    function adminLogout() {
+      const token = sessionStorage.getItem('adminToken');
+      fetch('/api/admin/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token }) }).catch(() => {});
+      sessionStorage.removeItem('adminToken');
+      window.location.href = 'admin-login.html';
+    }
+  </script>
 </body>
 </html>

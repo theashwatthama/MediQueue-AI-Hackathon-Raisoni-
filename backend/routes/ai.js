@@ -156,7 +156,7 @@ router.post('/analyze-symptoms', async (req, res) => {
     const { provider, client } = getAIClient();
 
     if (provider === 'gemini') {
-      const model = client.getGenerativeModel({ model: 'gemini-pro' });
+      const model = client.getGenerativeModel({ model: 'gemini-2.5-flash' });
       const prompt = `You are a medical triage AI for a government hospital. Analyze these symptoms and suggest the most appropriate hospital department. Respond in JSON format only:
 {"department": "department name", "priority": "low/medium/high/emergency", "confidence": 0.0-1.0, "reasoning": "brief explanation", "recommendations": ["rec1", "rec2", "rec3"]}
 
@@ -211,7 +211,7 @@ router.post('/chat', async (req, res) => {
     const { provider, client } = getAIClient();
 
     if (provider === 'gemini') {
-      const model = client.getGenerativeModel({ model: 'gemini-pro' });
+      const model = client.getGenerativeModel({ model: 'gemini-2.5-flash' });
       const prompt = `You are a helpful hospital assistant chatbot for MediQueue AI, a government hospital scheduling system. Be friendly, concise, and helpful. Answer questions about hospital services, appointments, doctors, timings, and general health guidance. Do not provide medical diagnoses.
 
 Hospital Info:

@@ -19,7 +19,7 @@ const appointmentSchema = new mongoose.Schema({
   },
   priority: {
     type: String,
-    enum: ['low', 'medium', 'high', 'emergency'],
+    enum: ['low', 'normal', 'medium', 'high', 'emergency'],
     default: 'medium'
   },
   estimatedWaitTime: { type: Number, default: 0 },

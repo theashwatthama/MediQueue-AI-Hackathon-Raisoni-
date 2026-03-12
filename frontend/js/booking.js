@@ -10,20 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     dateInput.min = new Date().toISOString().split('T')[0];
     dateInput.value = new Date().toISOString().split('T')[0];
   }
-
-  // Load all doctors upfront
-  fetchAllDoctors();
 });
 
-async function fetchAllDoctors() {
-  try {
-    allDoctors = await apiCall('/api/doctors');
-  } catch (err) {
-    console.error('Failed to load doctors:', err);
-  }
-}
-
-// Load doctors when department is selected
+// Load doctors when department is selected - always fresh fetch
 function loadDoctors() {
   const dept = document.getElementById('department').value;
   const doctorSelect = document.getElementById('doctor');
@@ -34,20 +23,34 @@ function loadDoctors() {
 
   if (!dept) return;
 
-  const filtered = allDoctors.filter(d => d.department === dept && d.isAvailable);
+  doctorSelect.innerHTML = '<option value="">Loading doctors...</option>';
 
-  if (filtered.length === 0) {
-    doctorSelect.innerHTML = '<option value="">No doctors available</option>';
-    return;
-  }
+  fetch(API_BASE + '/api/doctors?department=' + encodeURIComponent(dept) + '&available=true')
+    .then(res => {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(doctors => {
+      allDoctors = doctors;
+      doctorSelect.innerHTML = '<option value="">Select Doctor</option>';
 
-  filtered.forEach(doc => {
-    const option = document.createElement('option');
-    option.value = doc._id;
-    option.textContent = `${doc.name} (${doc.specialization || doc.department})`;
-    option.dataset.name = doc.name;
-    doctorSelect.appendChild(option);
-  });
+      if (doctors.length === 0) {
+        doctorSelect.innerHTML = '<option value="">No doctors available</option>';
+        return;
+      }
+
+      doctors.forEach(doc => {
+        const option = document.createElement('option');
+        option.value = doc._id;
+        option.textContent = doc.name + ' (' + (doc.specialization || doc.department) + ')';
+        option.dataset.name = doc.name;
+        doctorSelect.appendChild(option);
+      });
+    })
+    .catch(err => {
+      console.error('Failed to load doctors:', err);
+      doctorSelect.innerHTML = '<option value="">Error loading - try again</option>';
+    });
 }
 
 // Load time slots when doctor is selected
@@ -105,10 +108,15 @@ async function analyzeSymptoms() {
       }
     }
 
-    // Auto-select priority
+    // Auto-select priority - map AI values to valid dropdown options
     if (result.priority) {
+      const prioMap = { 'normal': 'low', 'routine': 'low', 'moderate': 'medium', 'urgent': 'high', 'critical': 'emergency' };
+      const mappedPriority = prioMap[result.priority.toLowerCase()] || result.priority.toLowerCase();
       const prioSelect = document.getElementById('priority');
-      if (prioSelect) prioSelect.value = result.priority;
+      if (prioSelect) {
+        const validValues = Array.from(prioSelect.options).map(o => o.value);
+        prioSelect.value = validValues.includes(mappedPriority) ? mappedPriority : 'medium';
+      }
     }
 
     showToast('AI Analysis Complete', `Suggested: ${result.department}`, 'success');

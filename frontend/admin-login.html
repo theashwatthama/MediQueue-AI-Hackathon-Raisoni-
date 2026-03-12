@@ -255,11 +255,12 @@
         </div>
     </div>
 
+    <script src="js/main.js"></script>
     <script>
         // If already logged in, redirect
         const savedToken = sessionStorage.getItem('adminToken');
         if (savedToken) {
-            fetch('/api/admin/verify', {
+            fetch(API_BASE + '/api/admin/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: savedToken })
@@ -298,7 +299,7 @@
             btn.innerHTML = '<div class="spinner-small"></div> Logging in...';
 
             try {
-                const res = await fetch('/api/admin/login', {
+                const res = await fetch(API_BASE + '/api/admin/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, password })

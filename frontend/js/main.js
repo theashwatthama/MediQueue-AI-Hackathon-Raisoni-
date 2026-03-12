@@ -1,5 +1,6 @@
 // MediQueue AI - Main JavaScript (shared utilities)
-const API_BASE = '';
+// If opened via Live Server (port 5500/5501) or file://, point API calls to the actual backend server
+const API_BASE = window.location.port === '3000' ? '' : 'http://localhost:3000';
 
 // ---- Toast Notifications ----
 function showToast(title, message, type = 'info') {

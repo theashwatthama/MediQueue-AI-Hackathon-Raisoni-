@@ -243,8 +243,8 @@
     document.addEventListener('DOMContentLoaded', async () => {
       try {
         const [statsRes, doctorsRes] = await Promise.all([
-          fetch('/api/appointments/stats'),
-          fetch('/api/doctors')
+          fetch(API_BASE + '/api/appointments/stats'),
+          fetch(API_BASE + '/api/doctors')
         ]);
         const stats = await statsRes.json();
         const doctors = await doctorsRes.json();

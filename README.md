@@ -169,7 +169,7 @@ Open:
 
 ## Built For
 
-Smart India Hackathon style OPD digitization use case: reducing queue friction, improving triage quality, and increasing admin visibility.
+5 Hour Sprint Hackathon style OPD digitization use case: reducing queue friction, improving triage quality, and increasing admin visibility.
 
 ## License
 
